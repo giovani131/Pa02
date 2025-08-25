@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
+const userRoutes = require('./routes/userRoutes')
 
 const app = express();
 app.use(cors());
@@ -14,6 +15,8 @@ connectDB();
 app.get('/', (req, res) => {
   res.send('Servidor rodando e banco conectado!');
 });
+
+app.use('/api', userRoutes);
 
 
 // Inicializar servidor
