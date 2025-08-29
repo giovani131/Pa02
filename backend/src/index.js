@@ -1,26 +1,28 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('./config/db');
-const userRoutes = require('./routes/userRoutes')
+const pool = require('./config/db'); 
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Conectar ao MongoDB
-connectDB();
+
+pool.connect()
+  .then(client => {
+    console.log('✅ Conectado ao PostgreSQL');
+    client.release(); 
+  })
+  .catch(err => {
+    console.error('❌ Erro ao conectar ao PostgreSQL:', err.message);
+    process.exit(1);
+  });
 
 // Rotas
-app.get('/', (req, res) => {
-  res.send('Servidor rodando e banco conectado!');
-});
-
 app.use('/api', userRoutes);
 
-
-// Inicializar servidor
 const PORT = process.env.PORT || 5500;
 app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta http://localhost:${PORT}/`)
+  console.log(`Servidor rodando na porta http://localhost:${PORT}/`);
 });

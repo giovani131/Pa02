@@ -1,13 +1,9 @@
-const mongoose = require('mongoose');
+const { Pool } = require('pg');
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('✅ Conectado ao MongoDB');
-  } catch (err) {
-    console.error('❌ Erro ao conectar ao MongoDB:', err.message);
-    process.exit(1);
-  }
-};
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URI,
+});
 
-module.exports = connectDB;
+module.exports = pool;
+
+

@@ -1,23 +1,35 @@
-const Usuario = require("../models/Usuario");
-const bcrypt = require("bcrypt");
+const pool = require('../config/db');
+const Usuario = require('../models/Usuario');
+const bcrypt = require('bcrypt');
 
 async function criarUsuario({ nome, telefone, email, senha }) {
-  
-    const userExiste = await Usuario.findOne({ email });
-  if (userExiste) {
-    throw new Error("Usuário já cadastrado com esse email!");
+
+  const checkQuery = 'SELECT * FROM usuarios WHERE email = $1';
+  const checkRes = await pool.query(checkQuery, [email]);
+  if (checkRes.rows.length > 0) {
+    throw new Error('Usuário já cadastrado com esse email!');
   }
 
-  const senhaCriptografa = await bcrypt.hash(senha, 10);
+  const senhaCriptografada = await bcrypt.hash(senha, 10);
 
   const novoUsuario = new Usuario({
     nome,
     telefone,
     email,
-    senha: senhaCriptografa,
+    senha: senhaCriptografada,
   });
 
-  return await novoUsuario.save();
+  const insertQuery = `
+    INSERT INTO usuarios (nome, telefone, email, senha)
+    VALUES ($1, $2, $3, $4)
+    RETURNING *;
+  `;
+  const values = [novoUsuario.nome, novoUsuario.telefone, novoUsuario.email, novoUsuario.senha];
+  
+  const res = await pool.query(insertQuery, values);
+
+  return new Usuario(res.rows[0]);
 }
 
 module.exports = { criarUsuario };
+

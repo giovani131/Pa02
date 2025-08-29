@@ -13,7 +13,7 @@ async function cadastrarUsuario(req, res) {
     res.status(201).json({
       message: "Usuário cadastrado com sucesso!",
       user: {
-        id: usuario._id,
+        id: usuario.id,
         nome: usuario.nome,
         telefone: usuario.telefone,
         email: usuario.email,
