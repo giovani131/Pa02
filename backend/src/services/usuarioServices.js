@@ -31,5 +31,29 @@ async function criarUsuario({ nome, telefone, email, senha }) {
   return new Usuario(res.rows[0]);
 }
 
-module.exports = { criarUsuario };
+async function editarUsuario(id, { nome, telefone, email, senha }) {
+  // Se a senha foi fornecida, criptografa
+  let senhaCriptografada = senha;
+  if (senha) {
+    senhaCriptografada = await bcrypt.hash(senha, 10);
+  }
+
+  const updateQuery = `
+    UPDATE usuarios
+    SET nome = $1, telefone = $2, email = $3, senha = $4
+    WHERE id = $5
+    RETURNING *;
+  `;
+  const values = [nome, telefone, email, senhaCriptografada, id];
+
+  const res = await pool.query(updateQuery, values);
+
+  if (res.rows.length === 0) {
+    throw new Error('Usuário não encontrado');
+  }
+
+  return new Usuario(res.rows[0]);
+}
+
+module.exports = { criarUsuario, editarUsuario };
 
