@@ -55,5 +55,21 @@ async function editarUsuario(id, { nome, telefone, email, senha }) {
   return new Usuario(res.rows[0]);
 }
 
-module.exports = { criarUsuario, editarUsuario };
+async function deletarUsuario(id) {
+  const deleteQuery = `
+    DELETE FROM usuarios
+    WHERE id = $1
+    RETURNING *;
+  `;
+
+  const res = await pool.query(deleteQuery, [id]);
+
+  if (res.rows.length === 0) {
+    throw new Error('Usuário não encontrado');
+  }
+
+  return res.rows[0];
+}
+
+module.exports = { criarUsuario, editarUsuario , deletarUsuario};
 

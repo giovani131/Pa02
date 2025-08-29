@@ -4,5 +4,6 @@ const usuarioController = require("../controllers/usuarioController");
 
 router.post("/cadastrarUsuario", usuarioController.cadastrarUsuario);
 router.patch("/editarUsuario", usuarioController.editarUsuario);
+router.delete("/deletarUsuario", usuarioController.deletarUsuario)
 
 module.exports = router;

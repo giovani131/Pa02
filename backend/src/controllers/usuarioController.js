@@ -49,6 +49,26 @@ async function editarUsuario(req, res) {
   }
 }
 
+async function deletarUsuario(req, res) {
+  try {
+    const { id } = req.body; // id do usuário a ser deletado
+
+    const usuarioDeletado = await usuarioServices.deletarUsuario(id);
+
+    res.status(200).json({
+      message: 'Usuário deletado com sucesso!',
+      user: {
+        id: usuarioDeletado.id,
+        nome: usuarioDeletado.nome,
+        email: usuarioDeletado.email
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
 
 
-module.exports = { cadastrarUsuario, editarUsuario };
+
+
+module.exports = { cadastrarUsuario, editarUsuario, deletarUsuario };
