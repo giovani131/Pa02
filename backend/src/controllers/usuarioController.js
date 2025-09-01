@@ -26,8 +26,8 @@ async function cadastrarUsuario(req, res) {
 
 async function editarUsuario(req, res) {
   try {
-    //por enquanto o id vem pelo body, mas ele vai vir pelo token
-    const { id, nome, telefone, email, senha } = req.body;
+    const id = req.user.id; 
+    const { nome, telefone, email, senha } = req.body;
 
     if (!nome || !telefone || !email || !senha) {
       return res.status(400).json({ message: 'Preencha todos os campos obrigatórios!' });
@@ -51,7 +51,7 @@ async function editarUsuario(req, res) {
 
 async function deletarUsuario(req, res) {
   try {
-    const { id } = req.body; // id do usuário a ser deletado
+    const id = req.user.id;
 
     const usuarioDeletado = await usuarioServices.deletarUsuario(id);
 
@@ -69,6 +69,23 @@ async function deletarUsuario(req, res) {
 }
 
 
+async function loginUsuario(req, res) {
+  try {
+    const { email, senha } = req.body;
+    if (!email || !senha) return res.status(400).json({ message: 'Preencha todos os campos!' });
+
+    const { usuario, token } = await usuarioServices.loginUsuario(email, senha);
+    res.status(200).json({
+      message: 'Login realizado com sucesso!',
+      user: { id: usuario.id, nome: usuario.nome, email: usuario.email },
+      token
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
 
 
-module.exports = { cadastrarUsuario, editarUsuario, deletarUsuario };
+
+
+module.exports = { cadastrarUsuario, editarUsuario, deletarUsuario, loginUsuario};

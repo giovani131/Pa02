@@ -1,6 +1,7 @@
 const pool = require('../config/db');
 const Usuario = require('../models/Usuario');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 async function criarUsuario({ nome, telefone, email, senha }) {
 
@@ -32,7 +33,6 @@ async function criarUsuario({ nome, telefone, email, senha }) {
 }
 
 async function editarUsuario(id, { nome, telefone, email, senha }) {
-  // Se a senha foi fornecida, criptografa
   let senhaCriptografada = senha;
   if (senha) {
     senhaCriptografada = await bcrypt.hash(senha, 10);
@@ -71,5 +71,16 @@ async function deletarUsuario(id) {
   return res.rows[0];
 }
 
-module.exports = { criarUsuario, editarUsuario , deletarUsuario};
+async function loginUsuario(email, senha) {
+  const res = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+  const usuario = res.rows[0];
+  if (!usuario) throw new Error('Email ou senha inválidos');
+
+  const senhaValida = await bcrypt.compare(senha, usuario.senha);
+  if (!senhaValida) throw new Error('Email ou senha inválidos');
+  const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  return { usuario, token };
+}
+
+module.exports = { criarUsuario, editarUsuario , deletarUsuario, loginUsuario};
 
